@@ -47,7 +47,7 @@ def main():
         events_result = (
             service.events()
             .list(
-                calendarId="familyId@group.calendar.google.com",
+                calendarId="family14937585472130012790@group.calendar.google.com",
                 timeMin=now,
                 maxResults=10,
                 singleEvents=True,

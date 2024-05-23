@@ -16,22 +16,26 @@ def main():
     Prints the start and name of the next 10 events on the user's calendar.
     """
     creds = None
+    credentials_dir = os.path.join(os.path.dirname(__file__), '..', 'credentials')
+    token_path = os.path.join(credentials_dir, 'token.json')
+
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists("credentials/token.json"):
-        creds = Credentials.from_authorized_user_file("credentials/token.json", SCOPES)
+    if os.path.exists(token_path):
+        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
+    
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials/credentials.json", SCOPES
+                os.path.join(credentials_dir, 'credentials.json'), SCOPES
             )
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open("credentials/token.json", "w") as token:
+        with open(token_path, "w") as token:
             token.write(creds.to_json())
 
     try:

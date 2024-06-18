@@ -1,15 +1,51 @@
 # google_calendar_python
 
 # Português:
-Projeto 1: Gerenciamento de Tarefas
-Este projeto é uma aplicação de gerenciamento de tarefas simples, desenvolvida em Python. Ele permite aos usuários criar, visualizar, editar e excluir tarefas, além de definir prioridades e datas de vencimento para cada uma. A interface do usuário é amigável e intuitiva, tornando o processo de gerenciamento de tarefas eficiente e fácil de usar.
+Projeto 1: próximos 10 eventos
 
-Projeto 2: Catálogo de Produtos
-O segundo projeto é um catálogo de produtos desenvolvido em Django. Ele permite que os usuários visualizem uma lista de produtos, pesquisem itens específicos, visualizem detalhes de produtos individuais e adicionem itens ao carrinho de compras. Além disso, os administradores podem fazer login no painel de administração para gerenciar produtos, categorias e pedidos.
+Google Calendar API
+Este projeto implementa uma classe Python para interagir com a API do Google Calendar. Ele permite autenticar um usuário e recuperar os próximos eventos de um calendário específico.
 
-# English:
-Project 1: Task Management
-This project is a simple task management application, developed in Python. It allows users to create, view, edit, and delete tasks, as well as set priorities and due dates for each one. The user interface is friendly and intuitive, making the task management process efficient and easy to use.
+Pré-requisitos
+Python 3.6 ou superior
+Bibliotecas Python: google-auth, google-auth-oauthlib, google-auth-httplib2, google-api-python-client, python-dotenv
+Arquivos de credenciais do Google OAuth 2.0: credentials.json
+Arquivo de variáveis de ambiente .env contendo o ID do calendário
+Instalação
 
-Project 2: Product Catalog
-The second project is a product catalog developed in Django. It allows users to view a list of products, search for specific items, view details of individual products, and add items to the shopping cart. Additionally, administrators can log in to the admin panel to manage products, categories, and orders.
+python -m venv venv
+source venv/bin/activate  # No Windows use `venv\Scripts\activate`
+Instale as dependências:
+
+pip install -r requirements.txt
+Coloque o arquivo credentials.json no diretório credentials/.
+
+Uso
+Carregue as variáveis de ambiente e execute o script google_calendar.py:
+
+python main.py
+O script exibirá os próximos eventos do calendário especificado.
+
+
+
+
+Projeto 2: Eventos em 24 horas
+
+Google Calendar API
+Este projeto implementa uma classe Python para interagir com a API do Google Calendar. Ele permite autenticar um usuário e recuperar os horários ocupados no calendário do usuário para as próximas 24 horas.
+
+Pré-requisitos
+Python 3.6 ou superior
+Bibliotecas Python: google-auth, google-auth-oauthlib, google-auth-httplib2, google-api-python-client
+Arquivos de credenciais do Google OAuth 2.0: credentials.json
+Instalação:
+
+Crie e ative um ambiente virtual (opcional, mas recomendado):`
+
+Instale as dependências:
+pip install -r requirements.txt
+Coloque o arquivo credentials.json no diretório do projeto.
+
+Uso
+Execute o script get_others.py:
+

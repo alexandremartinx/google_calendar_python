@@ -5,9 +5,15 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from google.auth.exceptions import RefreshError
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import base64
 
 class GoogleCalendarAPI:
-    SCOPES = ["https://www.googleapis.com/auth/calendar.readonly", "https://www.googleapis.com/auth/calendar"]
+    SCOPES = ["https://www.googleapis.com/auth/calendar.readonly", 
+              "https://www.googleapis.com/auth/calendar",
+              "https://www.googleapis.com/auth/gmail.send"]
 
     def __init__(self, credentials_file="credentials.json", token_file="token.json"):
         self.credentials_file = credentials_file
@@ -20,7 +26,11 @@ class GoogleCalendarAPI:
             creds = Credentials.from_authorized_user_file(self.token_file, self.SCOPES)
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
+                try:
+                    creds.refresh(Request())
+                except RefreshError as e:
+                    print(f"Error refreshing credentials: {e}")
+                    return None
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(self.credentials_file, self.SCOPES)
                 creds = flow.run_local_server(port=0)
@@ -31,6 +41,10 @@ class GoogleCalendarAPI:
     def get_busy_times(self):
         """Gets the busy times on the user's calendar for the next 24 hours."""
         creds = self.authenticate()
+        if not creds:
+            print("Failed to authenticate.")
+            return
+        
         service = build("calendar", "v3", credentials=creds)
 
         now = datetime.datetime.utcnow()
@@ -57,9 +71,13 @@ class GoogleCalendarAPI:
         except HttpError as error:
             print(f"An error occurred: {error}")
 
-    def send_event_invite(self, email, summary, description, start_datetime, end_datetime):
-        """Sends an event invitation to the specified email."""
+    def create_event(self, email, summary, description, start_datetime, end_datetime):
+        """Creates an event on the user's calendar and sends an invite via email."""
         creds = self.authenticate()
+        if not creds:
+            print("Failed to authenticate.")
+            return
+
         service = build("calendar", "v3", credentials=creds)
 
         event = {
@@ -81,17 +99,54 @@ class GoogleCalendarAPI:
         try:
             event = service.events().insert(calendarId='primary', body=event).execute()
             print(f"Event created: {event.get('htmlLink')}")
+            self.send_event_invite(email, summary, description, start_datetime, end_datetime)
         except HttpError as error:
             print(f"An error occurred: {error}")
 
+    def send_event_invite(self, email, summary, description, start_datetime, end_datetime):
+        """Sends an event invitation to the specified email via Gmail."""
+        creds = self.authenticate()
+        if not creds:
+            print("Failed to authenticate.")
+            return
+
+        service = build("gmail", "v1", credentials=creds)
+
+        message = self.create_message(email, summary, description, start_datetime, end_datetime)
+        
+        try:
+            message = service.users().messages().send(userId="me", body=message).execute()
+            print(f"Invite sent. Message ID: {message['id']}")
+        except HttpError as error:
+            print(f"An error occurred: {error}")
+
+    def create_message(self, email, summary, description, start_datetime, end_datetime):
+        """Creates a message for sending event invite via Gmail."""
+        message = MIMEMultipart('alternative')
+        message['to'] = email
+        message['subject'] = f"Invite: {summary}"
+        
+        html = f"<p>You are invited to '{summary}'.</p>"
+        text = f"You are invited to '{summary}'."
+
+        part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+
+        message.attach(part1)
+        message.attach(part2)
+
+        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        return {'raw': raw}
+
 if __name__ == "__main__":
     calendar_api = GoogleCalendarAPI()
-    calendar_api.get_busy_times()
+    calendar_api.get_busy_times()  # Optional: Print busy times
 
-    email = "email"
+    # Example usage of sending event invite
+    email = "vbrasilimp.comercial@gmail.com"
     summary = "Meeting"
     description = "Discuss project details"
     start_datetime = datetime.datetime(2024, 7, 10, 10, 0, 0)  # Year, Month, Day, Hour, Minute, Second
     end_datetime = datetime.datetime(2024, 7, 10, 11, 0, 0)    # Year, Month, Day, Hour, Minute, Second
     
-    calendar_api.send_event_invite(email, summary, description, start_datetime, end_datetime)
+    calendar_api.create_event(email, summary, description, start_datetime, end_datetime)

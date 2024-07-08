@@ -143,7 +143,7 @@ if __name__ == "__main__":
     calendar_api.get_busy_times()  # Optional: Print busy times
 
     # Example usage of sending event invite
-    email = "vbrasilimp.comercial@gmail.com"
+    email = "email convidado"
     summary = "Meeting"
     description = "Discuss project details"
     start_datetime = datetime.datetime(2024, 7, 10, 10, 0, 0)  # Year, Month, Day, Hour, Minute, Second

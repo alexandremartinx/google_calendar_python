@@ -52,7 +52,7 @@ class GoogleCalendarAPI:
 
 if __name__ == "__main__":
     load_dotenv()
-    calendar_id = 'alexandremartinx@gmail.com'
+    calendar_id = 'yourmail@gmail.com'
     api = GoogleCalendarAPI(calendar_id)
     next_events = api.get_next_events()
     for event in next_events:

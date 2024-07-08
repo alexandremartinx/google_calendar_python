@@ -1,7 +1,6 @@
 # google_calendar_python
 
-# Português:
-Projeto 1: próximos 10 eventos
+# Projeto 1: próximos 10 eventos
 
 Google Calendar API
 Este projeto implementa uma classe Python para interagir com a API do Google Calendar. Ele permite autenticar um usuário e recuperar os próximos eventos de um calendário específico.
@@ -27,9 +26,7 @@ python main.py
 O script exibirá os próximos eventos do calendário especificado.
 
 
-
-
-Projeto 2: Eventos em 24 horas
+# Projeto 2: Eventos em 24 horas
 
 Google Calendar API
 Este projeto implementa uma classe Python para interagir com a API do Google Calendar. Ele permite autenticar um usuário e recuperar os horários ocupados no calendário do usuário para as próximas 24 horas.
@@ -47,5 +44,4 @@ pip install -r requirements.txt
 Coloque o arquivo credentials.json no diretório do projeto.
 
 Uso
-Execute o script get_others.py:
-
+Execute o script get_others.py

@@ -9,6 +9,7 @@ from google.auth.exceptions import RefreshError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import base64
+from email.utils import formatdate
 
 class GoogleCalendarAPI:
     SCOPES = ["https://www.googleapis.com/auth/calendar.readonly", 
@@ -122,28 +123,35 @@ class GoogleCalendarAPI:
 
     def create_message(self, email, summary, description, start_datetime, end_datetime):
         """Creates a message for sending event invite via Gmail."""
-        message = MIMEMultipart('alternative')
+        message = MIMEMultipart('mixed')
         message['to'] = email
         message['subject'] = f"Invite: {summary}"
+        message['from'] = "seu gmail"
+
+        # Create MIMEText for the invitation
+        invitation = MIMEMultipart('alternative')
         
-        html = f"<p>You are invited to '{summary}'.</p>"
-        text = f"You are invited to '{summary}'."
+        ical_body = f"BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Google Inc//Google Calendar 70.9054//EN\r\nBEGIN:VEVENT\r\nSUMMARY:{summary}\r\nDESCRIPTION:{description}\r\nLOCATION:\r\nDTSTART:{start_datetime.strftime('%Y%m%dT%H%M%SZ')}\r\nDTEND:{end_datetime.strftime('%Y%m%dT%H%M%SZ')}\r\nSTATUS:CONFIRMED\r\nSEQUENCE:0\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:This is an event reminder\r\nTRIGGER:-PT15M\r\nEND:VALARM\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n"
+        
+        ical_text_part = MIMEText(ical_body, 'calendar', 'utf-8')
+        ical_text_part['Content-Class'] = 'urn:content-classes:calendarmessage'
+        ical_text_part['Content-Type'] = 'text/calendar; method=REQUEST'
+        ical_text_part['Content-Transfer-Encoding'] = '8bit'
+        ical_text_part['Content-Disposition'] = 'inline; filename="invite.ics"'
 
-        part1 = MIMEText(text, 'plain')
-        part2 = MIMEText(html, 'html')
-
-        message.attach(part1)
-        message.attach(part2)
+        invitation.attach(ical_text_part)
+        
+        # Attach the invitation to the main message
+        message.attach(invitation)
 
         raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
         return {'raw': raw}
 
 if __name__ == "__main__":
     calendar_api = GoogleCalendarAPI()
-    calendar_api.get_busy_times()  # Optional: Print busy times
+    calendar_api.get_busy_times()
 
-    # Example usage of sending event invite
-    email = "email convidado"
+    email = "email destinatário"
     summary = "Meeting"
     description = "Discuss project details"
     start_datetime = datetime.datetime(2024, 7, 10, 10, 0, 0)  # Year, Month, Day, Hour, Minute, Second
